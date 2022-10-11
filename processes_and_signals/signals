@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+for files in /home/alu-shell/processes_and_signals/*
+do
+        echo "#!/usr/bin/env bash" >> ${File}
+done#!/usr/bin/env bash
