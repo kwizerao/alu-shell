@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# process and pid file
+
 file="/var/run/myscript.pid"
 
 echo $$ > "$file"
