@@ -1,22 +1,72 @@
 #!/usr/bin/env bash
-# a Bash script that:
+# script to manage deamon
 
 
 
-Indefinitely writes I am alive! to the file /tmp/my_process
+PROGRAM='manage_my_process'
 
-In between every I am alive! message, the program should pause for 2 seconds
+RELPATH="${0%/*}/${PROGRAM}"
 
+PIDFILE="${PIDFILE:-/var/run/my_process.pid}"
 
-
-file="/tmp/my_process"
-
-
-
-while true; do
+declare -A MESSAGES=(
     
-    echo "I am alive!" >> "$file"
+    ['start']='started'
     
-    sleep 2
+    ['stop']='stopped'
     
-done
+    ['restart']='restarted'
+    
+)
+
+
+
+start() {
+    
+    exec -- "${RELPATH}" &
+    
+    echo "$!" >| "${PIDFILE}"
+    
+}
+
+
+
+stop() {
+    
+  trap '
+
+    trap RETURN
+
+    rm -f -- "${PIDFILE}"
+
+  ' RETURN
+  
+  kill -- "$(< "${PIDFILE}")" 2> /dev/null
+  
+}
+
+
+
+restart() {
+    
+    stop
+    
+    start
+    
+}
+
+
+
+if (( $# == 1 )) && [[ -v "MESSAGES[$1]" ]]
+   
+then
+    
+    "$1" && printf '%s %s\n' "${PROGRAM}" "${MESSAGES[$1]}"
+    
+else
+    
+    printf 'Usage: %s {start|stop|restart}\n' "${PROGRAM}"
+    
+    exit 1
+    
+fi
