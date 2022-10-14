@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # starts manage_my_process in the background
 
   ./manage_my_process &
