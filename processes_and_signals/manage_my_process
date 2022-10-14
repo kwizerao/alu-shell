@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
-# starts manage_my_process in the background
+#Write to /tmp/my_process indefinitely
 
-./manage_my_process &
 
-# creates /var/run/my_process.pid with its PID inside
 
-echo $!>/var/run/my_process.pid
+sleep() {
+    
+    ! read -rt "$1"
+    
+} <> <(:)
 
-}
- 
- stop_action() {
-     
-     kill manage_my_process
-     
-     pkill -f ./manage_my_process
-     
-     # delete /var/run/my_process.pid with force option and sudo to make sure it’s deleted
-     
-     sudo rm /var/run/my_process.pid
-     
- }
- 
-case "$1" in
+
+
+while true
+      
+do
+    
+    echo 'I am alive!'
+    
+    sleep 2
+    
+done > "${TMPDIR:-/tmp}/my_process"
