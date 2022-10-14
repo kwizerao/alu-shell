@@ -1,72 +1,41 @@
 #!/usr/bin/env bash
-# script to manage deamon
 
+# manages manage_my_process by either starting it, stopping it or restarting it.
 
+command="$1"
 
-PROGRAM='manage_my_process'
-
-RELPATH="${0%/*}/${PROGRAM}"
-
-PIDFILE="${PIDFILE:-/var/run/my_process.pid}"
-
-declare -A MESSAGES=(
+if [ -z "$command" ]; then
     
-    ['start']='started'
+    echo "Usage: manage_my_process {start|stop|restart}"
     
-    ['stop']='stopped'
+    exit
     
-    ['restart']='restarted'
+fi
+
+if [ "$command" == "start" ]; then
     
-)
-
-
-
-start() {
+    bash ./manage_my_process &
     
-    exec -- "${RELPATH}" &
+    echo "$!" > /var/run/my_process.pid
     
-    echo "$!" >| "${PIDFILE}"
+    echo "manage_my_process started"
     
-}
-
-
-
-stop() {
+elif [ "$command" == "stop" ]; then
     
-  trap '
-
-    trap RETURN
-
-    rm -f -- "${PIDFILE}"
-
-  ' RETURN
-  
-  kill -- "$(< "${PIDFILE}")" 2> /dev/null
-  
-}
-
-
-
-restart() {
+    [ -e "/var/run/my_process.pid" ] && pkill -f './manage_my_process' && rm /var/run/my_process.pid
     
-    stop
+    echo "manage_my_process stopped"
     
-    start
+elif [ "$command" == "restart" ]; then
     
-}
-
-
-
-if (( $# == 1 )) && [[ -v "MESSAGES[$1]" ]]
-   
-then
+    "$0" stop >& /dev/null
     
-    "$1" && printf '%s %s\n' "${PROGRAM}" "${MESSAGES[$1]}"
+    "$0" start >& /dev/null
+    
+    echo "manage_my_process restarted"
     
 else
     
-    printf 'Usage: %s {start|stop|restart}\n' "${PROGRAM}"
-    
-    exit 1
+    echo "Usage: manage_my_process {start|stop|restart}"
     
 fi
